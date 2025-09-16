@@ -1,0 +1,27 @@
+name: expense_calculator
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  async: ^2.13.0
+  cloud_firestore: ^6.0.1
+  firebase_auth: ^6.0.2
+  firebase_core: ^4.1.0
+  firebase_storage: ^13.0.1
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.6.1
+  image_picker: ^1.2.0
+  percent_indicator: ^4.2.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

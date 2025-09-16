@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "996719360587",
+    "firebase_url": "https://incomecalculator-1b65e-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "incomecalculator-1b65e",
+    "storage_bucket": "incomecalculator-1b65e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:996719360587:android:843b355d7fd970e7292bce",
+        "android_client_info": {
+          "package_name": "com.example.expense_calculator"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAPltqKpwgptWctmwTvR4J0n4eCyUN0tE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:996719360587:android:9688293c854ae9b3292bce",
+        "android_client_info": {
+          "package_name": "com.sohrabdev.incomecalculator"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAPltqKpwgptWctmwTvR4J0n4eCyUN0tE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
