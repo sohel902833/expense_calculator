@@ -1,3 +1,4 @@
+import 'package:expense_calculator/common/providers/theme_provider.dart';
 import 'package:expense_calculator/constants/color.dart';
 import 'package:expense_calculator/features/auth/controller/auth_controller.dart';
 import 'package:expense_calculator/features/auth/screens/login_screen.dart';
@@ -22,10 +23,34 @@ class MainApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeProvider); // 👈 listen to theme mode
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Whatsapp UI",
-      theme: ThemeData.dark().copyWith(
+      theme: ThemeData.light().copyWith(
+        scaffoldBackgroundColor: Colors.white,
+        appBarTheme: const AppBarTheme(backgroundColor: Colors.blue),
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.black26),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.black26),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.blueAccent),
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 14,
+            horizontal: 16,
+          ),
+        ),
+      ),
+      darkTheme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: backgroundColor,
         appBarTheme: const AppBarTheme(backgroundColor: appBarColor),
         inputDecorationTheme: InputDecorationTheme(
@@ -41,9 +66,13 @@ class MainApp extends ConsumerWidget {
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: Colors.blueAccent, width: 2),
           ),
-          contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 14,
+            horizontal: 16,
+          ),
         ),
       ),
+      themeMode: themeMode,
       onGenerateRoute: (settings) => generateRoute(settings),
       home: ref
           .watch(userDataAuthProvider)
