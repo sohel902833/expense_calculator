@@ -1,5 +1,6 @@
 import 'package:expense_calculator/constants/color.dart';
 import 'package:expense_calculator/features/comparison/screens/comparison_result_screen.dart';
+import 'package:expense_calculator/features/dashboard/screens/settings_screen.dart';
 import 'package:flutter/material.dart';
 
 const _monthNames = [
@@ -189,6 +190,16 @@ class _ComparisonScreenState extends State<ComparisonScreen>
                 ),
               ),
             ),
+          IconButton(
+            tooltip: "Settings",
+            onPressed: () =>
+                Navigator.pushNamed(context, SettingsScreen.routeName),
+            icon: const CircleAvatar(
+              radius: 14,
+              child: Icon(Icons.person_rounded, size: 18),
+            ),
+          ),
+          const SizedBox(width: 8),
         ],
       ),
       body: _comparisonType == null

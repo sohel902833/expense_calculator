@@ -18,12 +18,13 @@ class TransactionModals {
     BuildContext context,
     WidgetRef ref, {
     TransactionModel? editItem,
+    String? defaultType,
   }) {
     final formKey = GlobalKey<FormState>();
     final isEditing = editItem != null;
 
     final initialTypes = ref.read(transactionTypeControllerProvider);
-    String selectedType = editItem?.type ?? "Income";
+    String selectedType = editItem?.type ?? defaultType ?? "Income";
     TransactionTypeModel? selectedCategory;
     TransactionTypeModel? selectedIncomeTransaction;
     if (editItem != null) {

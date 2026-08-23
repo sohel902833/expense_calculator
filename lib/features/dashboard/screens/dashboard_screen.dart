@@ -1,6 +1,8 @@
 import 'dart:ui';
 
 import 'package:expense_calculator/common/modals/transaction_modals.dart';
+import 'package:expense_calculator/features/budget/screens/budget_dashboard_screen.dart';
+import 'package:expense_calculator/features/budget/screens/budget_list_screen.dart';
 import 'package:expense_calculator/features/comparison/screens/comparison_screen.dart';
 import 'package:expense_calculator/features/dashboard/screens/home_screen.dart';
 import 'package:expense_calculator/features/dashboard/screens/settings_screen.dart';
@@ -9,16 +11,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Shared geometry for the floating glass nav bar so any screen that needs
-/// to float its own button above it (e.g. TransactionScreen's filter button)
-/// can line up with the DashboardScreen's own floating "add" button exactly.
+/// to float its own button above it can line up with the DashboardScreen's
+/// own floating "add" button exactly.
 const double kGlassNavBarHeight = 64;
 const double kGlassNavBarMargin = 16;
 const double kGlassNavFabGap = 10;
-
-/// Mini FloatingActionButton's built-in size, and the breathing room between
-/// the two stacked buttons (filter above add) on the Transaction tab.
-const double kMiniFabSize = 40;
-const double kFabStackGap = 12;
 
 double glassNavFabBottomOffset(BuildContext context) =>
     kGlassNavBarMargin +
@@ -26,40 +23,64 @@ double glassNavFabBottomOffset(BuildContext context) =>
     kGlassNavFabGap +
     MediaQuery.of(context).padding.bottom;
 
-class DashboardScreen extends ConsumerStatefulWidget {
+/// The bottom-nav tab currently shown. Exposed as a provider (rather than
+/// private State) so other screens embedded in the tab stack -- e.g.
+/// HomeScreen's "See All" links -- can switch tabs without needing a
+/// callback threaded down from DashboardScreen.
+final dashboardTabIndexProvider = StateProvider<int>((ref) => 0);
+
+class DashboardScreen extends ConsumerWidget {
   static const routeName = '/dashboard-screen';
   const DashboardScreen({super.key});
 
-  @override
-  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
-}
-
-class _DashboardScreenState extends ConsumerState<DashboardScreen> {
-  int _currentIndex = 0;
+  static const _tabTitles = ["Dashboard", "Transactions", "Budget"];
 
   // pages are created only once and kept alive
-  final List<Widget> _pages = const [
+  static const _pages = [
     HomeScreen(),
     TransactionScreen(),
-    SettingsScreen(),
+    BudgetDashboardScreen(),
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final fabBottom = glassNavFabBottomOffset(context);
+    final currentIndex = ref.watch(dashboardTabIndexProvider);
 
     return Scaffold(
       extendBody: true,
-      appBar: AppBar(title: const Text("Dashboard")),
+      appBar: AppBar(
+        title: Text(_tabTitles[currentIndex]),
+        actions: [
+          if (currentIndex == 0)
+            IconButton(
+              tooltip: "Filter by month",
+              onPressed: () => showDashboardMonthFilterSheet(context, ref),
+              icon: const Icon(Icons.tune_rounded),
+            ),
+          if (currentIndex == 1) _buildTransactionFilterAction(ref, context),
+          if (currentIndex == 2)
+            IconButton(
+              tooltip: "Manage Budgets",
+              onPressed: () =>
+                  Navigator.pushNamed(context, BudgetListScreen.routeName),
+              icon: const Icon(Icons.add_circle_outline_rounded),
+            ),
+          IconButton(
+            tooltip: "Settings",
+            onPressed: () =>
+                Navigator.pushNamed(context, SettingsScreen.routeName),
+            icon: const CircleAvatar(
+              radius: 14,
+              child: Icon(Icons.person_rounded, size: 18),
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: Stack(
         children: [
-          IndexedStack(index: _currentIndex, children: _pages),
-          if (_currentIndex == 1)
-            Positioned(
-              right: 20,
-              bottom: fabBottom + kMiniFabSize + kFabStackGap,
-              child: _buildFilterFab(context),
-            ),
+          IndexedStack(index: currentIndex, children: _pages),
           Positioned(
             right: 20,
             bottom: fabBottom,
@@ -76,52 +97,33 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: _buildGlassNavBar(context),
+      bottomNavigationBar: _buildGlassNavBar(context, ref, currentIndex),
     );
   }
 
-  Widget _buildFilterFab(BuildContext context) {
+  Widget _buildTransactionFilterAction(WidgetRef ref, BuildContext context) {
     final activeCount = ref.watch(transactionFilterProvider).activeFilterCount;
-
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        FloatingActionButton(
-          mini: true,
-          heroTag: "transactionFilterFab",
-          onPressed: () => showTransactionFilterSheet(context, ref),
-          backgroundColor: const Color(0xFF37474F),
-          child: const Icon(Icons.tune_rounded),
-        ),
-        if (activeCount > 0)
-          Positioned(
-            right: -2,
-            top: -2,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
-              decoration: const BoxDecoration(
-                color: Colors.redAccent,
-                shape: BoxShape.circle,
-              ),
-              child: Text(
-                "$activeCount",
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ),
-      ],
+    return IconButton(
+      tooltip: "Filter transactions",
+      onPressed: () => showTransactionFilterSheet(context, ref),
+      icon: Badge(
+        isLabelVisible: activeCount > 0,
+        label: Text("$activeCount"),
+        child: const Icon(Icons.tune_rounded),
+      ),
     );
   }
 
-  Widget _buildGlassNavBar(BuildContext context) {
+  Widget _buildGlassNavBar(
+    BuildContext context,
+    WidgetRef ref,
+    int currentIndex,
+  ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bottomSafeArea = MediaQuery.of(context).padding.bottom;
+
+    void setIndex(int index) =>
+        ref.read(dashboardTabIndexProvider.notifier).state = index;
 
     return Padding(
       padding: EdgeInsets.fromLTRB(20, 0, 20, 16 + bottomSafeArea),
@@ -154,20 +156,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 _NavItem(
                   icon: Icons.home_rounded,
                   label: "Home",
-                  selected: _currentIndex == 0,
-                  onTap: () => setState(() => _currentIndex = 0),
+                  selected: currentIndex == 0,
+                  onTap: () => setIndex(0),
                 ),
                 _NavItem(
                   icon: Icons.list_alt_rounded,
                   label: "Transaction",
-                  selected: _currentIndex == 1,
-                  onTap: () => setState(() => _currentIndex = 1),
+                  selected: currentIndex == 1,
+                  onTap: () => setIndex(1),
                 ),
                 _NavItem(
-                  icon: Icons.settings_rounded,
-                  label: "Settings",
-                  selected: _currentIndex == 2,
-                  onTap: () => setState(() => _currentIndex = 2),
+                  icon: Icons.account_balance_wallet_rounded,
+                  label: "Budget",
+                  selected: currentIndex == 2,
+                  onTap: () => setIndex(2),
                 ),
                 _NavItem(
                   icon: Icons.compare_arrows_rounded,

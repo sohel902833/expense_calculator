@@ -1,11 +1,13 @@
 import 'package:expense_calculator/common/providers/theme_provider.dart';
 import 'package:expense_calculator/features/auth/controller/auth_controller.dart';
 import 'package:expense_calculator/features/auth/screens/login_screen.dart';
+import 'package:expense_calculator/features/budget/screens/budget_list_screen.dart';
 import 'package:expense_calculator/features/transaction-type/screens/transaction_type_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
+  static const routeName = '/settings-screen';
   const SettingsScreen({Key? key}) : super(key: key);
 
   @override
@@ -50,6 +52,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final themeMode = ref.watch(themeProvider);
 
     return Scaffold(
+      appBar: AppBar(title: const Text("Settings")),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(0, 8, 0, 110),
         children: [
@@ -92,6 +95,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () =>
                 Navigator.pushNamed(context, TransactionTypeScreen.routeName),
+          ),
+          ListTile(
+            leading: const Icon(Icons.account_balance_wallet_outlined),
+            title: const Text("Budgets"),
+            subtitle: const Text("Create, edit, and manage budgets"),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () =>
+                Navigator.pushNamed(context, BudgetListScreen.routeName),
           ),
           const Divider(height: 24),
           ListTile(
