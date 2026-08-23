@@ -8,6 +8,7 @@ class TransactionModel {
   final DateTime date;
   String? userId;
   final String? spentFromIncomeId;
+  final bool isDeleted;
   // timestamp
 
   TransactionModel({
@@ -20,6 +21,7 @@ class TransactionModel {
     required this.date,
     this.userId,
     this.spentFromIncomeId,
+    this.isDeleted = false,
   });
 
   Map<String, dynamic> toMap() => {
@@ -31,6 +33,7 @@ class TransactionModel {
     'date': date.toIso8601String(),
     'userId': userId,
     'spentFromIncomeId': spentFromIncomeId,
+    'isDeleted': isDeleted,
   };
 
   factory TransactionModel.fromMap(String id, Map<String, dynamic> map) =>
@@ -46,5 +49,6 @@ class TransactionModel {
             ? DateTime.parse(map['date'])
             : DateTime.now(),
         spentFromIncomeId: map['spentFromIncomeId'],
+        isDeleted: map['isDeleted'] ?? false,
       );
 }

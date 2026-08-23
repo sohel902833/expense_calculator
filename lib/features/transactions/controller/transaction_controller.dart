@@ -33,4 +33,8 @@ class TransactionController extends StateNotifier<List<TransactionModel>> {
   Future<void> deleteTransaction(String id) async {
     await repository.deleteTransaction(id);
   }
+
+  Future<void> restoreTransaction(String id) async {
+    await repository.restoreTransaction(id);
+  }
 }

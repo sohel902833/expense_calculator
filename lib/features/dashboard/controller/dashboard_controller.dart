@@ -34,9 +34,11 @@ class DashboardController extends StateNotifier<DashboardData> {
   }
 
   DashboardData _calculateDashboardData(
-    List<TransactionModel> transactions,
+    List<TransactionModel> allTransactions,
     List<TransactionTypeModel> types,
   ) {
+    final transactions = allTransactions.where((t) => !t.isDeleted).toList();
+
     // Group transactions by Income type
     final incomeTxns = transactions.where((t) => t.type == "Income");
 

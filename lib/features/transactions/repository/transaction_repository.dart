@@ -34,7 +34,15 @@ class TransactionRepository {
   }
 
   Future<void> deleteTransaction(String id) async {
-    await firestore.collection(collectionName).doc(id).delete();
+    await firestore.collection(collectionName).doc(id).update({
+      'isDeleted': true,
+    });
+  }
+
+  Future<void> restoreTransaction(String id) async {
+    await firestore.collection(collectionName).doc(id).update({
+      'isDeleted': false,
+    });
   }
 
   Stream<List<TransactionModel>> getTransactions() {
