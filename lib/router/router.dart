@@ -1,5 +1,6 @@
 import 'package:expense_calculator/features/auth/screens/login_screen.dart';
 import 'package:expense_calculator/features/auth/screens/signup_screen.dart';
+import 'package:expense_calculator/features/comparison/screens/comparison_screen.dart';
 import 'package:expense_calculator/features/common/not_found_screen.dart';
 import 'package:expense_calculator/features/dashboard/screens/dashboard_screen.dart';
 import 'package:expense_calculator/features/transaction-type/screens/transaction_type_screen.dart';
@@ -23,6 +24,12 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       {
         return MaterialPageRoute(
           builder: (context) => const TransactionTypeScreen(),
+        );
+      }
+    case ComparisonScreen.routeName:
+      {
+        return MaterialPageRoute(
+          builder: (context) => const ComparisonScreen(),
         );
       }
     default:

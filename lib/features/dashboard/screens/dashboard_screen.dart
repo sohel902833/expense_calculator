@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:expense_calculator/common/modals/transaction_modals.dart';
+import 'package:expense_calculator/features/comparison/screens/comparison_screen.dart';
 import 'package:expense_calculator/features/dashboard/screens/home_screen.dart';
 import 'package:expense_calculator/features/dashboard/screens/settings_screen.dart';
 import 'package:expense_calculator/features/dashboard/screens/transaction_screen.dart';
@@ -167,6 +168,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   label: "Settings",
                   selected: _currentIndex == 2,
                   onTap: () => setState(() => _currentIndex = 2),
+                ),
+                _NavItem(
+                  icon: Icons.compare_arrows_rounded,
+                  label: "Compare",
+                  selected: false,
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    ComparisonScreen.routeName,
+                  ),
                 ),
               ],
             ),
