@@ -55,12 +55,19 @@ class _ComparisonScreenState extends State<ComparisonScreen>
   }
 
   Future<void> _showTypePicker() async {
+    final hadType = _comparisonType != null;
     final type = await showDialog<String>(
       context: context,
-      barrierDismissible: _comparisonType != null,
+      barrierDismissible: hadType,
       builder: (_) => _ComparisonTypeDialog(initial: _comparisonType),
     );
-    if (type != null) setState(() => _comparisonType = type);
+    if (type != null) {
+      setState(() => _comparisonType = type);
+    } else if (!hadType && mounted) {
+      // Backed out of the very first type picker -- there's nothing to
+      // show on this screen without a type, so leave the Compare flow.
+      Navigator.of(context).pop();
+    }
   }
 
   void _showIncomplete() {
@@ -476,6 +483,17 @@ class _ComparisonTypeDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Align(
+              alignment: Alignment.topLeft,
+              child: IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.arrow_back_rounded),
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ),
+            const SizedBox(height: 8),
             const Text(
               "What do you want to compare?",
               textAlign: TextAlign.center,
@@ -511,13 +529,6 @@ class _ComparisonTypeDialog extends StatelessWidget {
                 ),
               ],
             ),
-            if (initial != null) ...[
-              const SizedBox(height: 12),
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Cancel"),
-              ),
-            ],
           ],
         ),
       ),

@@ -1,4 +1,5 @@
 import 'package:expense_calculator/common/repository/utils/utils.dart';
+import 'package:expense_calculator/constants/app_mode.dart';
 import 'package:expense_calculator/constants/color.dart';
 import 'package:expense_calculator/features/auth/controller/auth_controller.dart';
 import 'package:expense_calculator/features/auth/screens/signup_screen.dart';
@@ -64,16 +65,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const AuthHeader(
-                icon: Icons.account_balance_wallet_rounded,
-                title: "Welcome Back",
-                subtitle: "Sign in to keep track of your expenses",
-              ),
+      body: Stack(
+        children: [
+          SafeArea(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const AuthHeader(
+                    icon: Icons.account_balance_wallet_rounded,
+                    title: "Welcome Back",
+                    subtitle: "Sign in to keep track of your expenses",
+                  ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
                 child: Form(
@@ -156,9 +159,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ),
               ),
-            ],
+                ],
+              ),
+            ),
           ),
-        ),
+          if (!AppMode.isProd)
+            Positioned(
+              top: 12,
+              right: 12,
+              child: SafeArea(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade700,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    "${AppMode.current} MODE",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
