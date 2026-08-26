@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:expense_calculator/features/recurring/controller/recurring_rule_controller.dart';
 import 'package:expense_calculator/features/recurring/repository/recurring_occurrence_data_source.dart';
 import 'package:expense_calculator/features/recurring/repository/recurring_occurrence_repository.dart';
@@ -44,18 +46,25 @@ class RecurringOccurrenceController
     extends StateNotifier<List<RecurringOccurrenceModel>> {
   final RecurringOccurrenceDataSource repository;
   final Ref ref;
+  StreamSubscription<List<RecurringOccurrenceModel>>? _subscription;
   RecurringOccurrenceController({required this.repository, required this.ref})
     : super([]) {
     _listenLogs();
   }
 
   void _listenLogs() {
-    repository.getUserOccurrenceLogs().listen(
+    _subscription = repository.getUserOccurrenceLogs().listen(
       (logs) => state = logs,
       onError: (Object error) {
         debugPrint('Recurring occurrence log stream error: $error');
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 
   /// Creates a real transaction for each occurrence (dated now, since it's

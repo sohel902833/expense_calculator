@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:expense_calculator/features/transactions/repository/transaction_data_source.dart';
 import 'package:expense_calculator/features/transactions/repository/transaction_repository.dart';
 import 'package:expense_calculator/models/transaction_model.dart';
@@ -12,15 +14,22 @@ final transactionControllerProvider =
 class TransactionController extends StateNotifier<List<TransactionModel>> {
   final TransactionDataSource repository;
   final Ref ref;
+  StreamSubscription<List<TransactionModel>>? _subscription;
   TransactionController({required this.repository, required this.ref})
     : super([]) {
     _listenTransactions();
   }
 
   void _listenTransactions() {
-    repository.getTransactions().listen((transactions) {
+    _subscription = repository.getUserTransactions().listen((transactions) {
       state = transactions;
     });
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 
   Future<String> addTransaction(TransactionModel transaction) async {

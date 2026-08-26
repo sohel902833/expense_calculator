@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expense_calculator/constants/firestore_collection_path.dart';
+import 'package:expense_calculator/features/auth/controller/auth_controller.dart';
 import 'package:expense_calculator/features/budget/repository/budget_data_source.dart';
 import 'package:expense_calculator/features/budget/repository/budget_local_repository.dart';
 import 'package:expense_calculator/features/offline_mode/controller/offline_mode_controller.dart';
@@ -8,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final budgetRepositoryProvider = Provider<BudgetDataSource>((ref) {
+  ref.watch(currentIdentityProvider); // rebuild on account/profile switch
   if (ref.watch(isOfflineModeProvider)) {
     return ref.watch(budgetLocalRepositoryProvider);
   }

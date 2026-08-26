@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:expense_calculator/features/recurring/repository/recurring_rule_data_source.dart';
 import 'package:expense_calculator/features/recurring/repository/recurring_rule_repository.dart';
 import 'package:expense_calculator/models/recurring_rule_model.dart';
@@ -15,18 +17,25 @@ final recurringRuleControllerProvider =
 class RecurringRuleController extends StateNotifier<List<RecurringRuleModel>> {
   final RecurringRuleDataSource repository;
   final Ref ref;
+  StreamSubscription<List<RecurringRuleModel>>? _subscription;
   RecurringRuleController({required this.repository, required this.ref})
     : super([]) {
     _listenRules();
   }
 
   void _listenRules() {
-    repository.getUserRules().listen(
+    _subscription = repository.getUserRules().listen(
       (rules) => state = rules,
       onError: (Object error) {
         debugPrint('Recurring rule stream error: $error');
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 
   Future<void> addRule(RecurringRuleModel rule) async {

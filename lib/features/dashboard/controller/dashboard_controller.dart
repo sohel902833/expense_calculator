@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:expense_calculator/features/transaction-type/repository/transaction_type_data_source.dart';
 import 'package:expense_calculator/features/transaction-type/repository/transaction_type_repository.dart';
 import 'package:expense_calculator/features/transactions/repository/transaction_data_source.dart';
@@ -17,6 +19,7 @@ final dashboardControllerProvider =
 class DashboardController extends StateNotifier<DashboardData> {
   final TransactionDataSource txRepo;
   final TransactionTypeDataSource typeRepo;
+  StreamSubscription<List<Object>>? _subscription;
 
   DashboardController(this.txRepo, this.typeRepo)
     : super(DashboardData.initial()) {
@@ -27,12 +30,18 @@ class DashboardController extends StateNotifier<DashboardData> {
     final txStream = txRepo.getUserTransactions();
     final typeStream = typeRepo.getTransactionTypes();
 
-    StreamZip([txStream, typeStream]).listen((values) {
+    _subscription = StreamZip([txStream, typeStream]).listen((values) {
       final transactions = values[0] as List<TransactionModel>;
       final types = values[1] as List<TransactionTypeModel>;
 
       state = _calculateDashboardData(transactions, types);
     });
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 
   DashboardData _calculateDashboardData(

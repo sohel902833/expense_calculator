@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:expense_calculator/features/budget/repository/budget_data_source.dart';
 import 'package:expense_calculator/features/budget/repository/budget_repository.dart';
 import 'package:expense_calculator/models/budget_model.dart';
@@ -13,12 +15,13 @@ final budgetControllerProvider =
 class BudgetController extends StateNotifier<List<BudgetModel>> {
   final BudgetDataSource repository;
   final Ref ref;
+  StreamSubscription<List<BudgetModel>>? _subscription;
   BudgetController({required this.repository, required this.ref}) : super([]) {
     _listenBudgets();
   }
 
   void _listenBudgets() {
-    repository.getUserBudgets().listen(
+    _subscription = repository.getUserBudgets().listen(
       (budgets) {
         state = budgets;
         _rollForwardRecurring(budgets);
@@ -27,6 +30,12 @@ class BudgetController extends StateNotifier<List<BudgetModel>> {
         debugPrint('Budget stream error: $error');
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 
   Future<void> addBudget(BudgetModel budget) async {

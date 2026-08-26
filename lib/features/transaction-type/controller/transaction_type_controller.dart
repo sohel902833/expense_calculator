@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:expense_calculator/features/transaction-type/repository/transaction_type_data_source.dart';
 import 'package:expense_calculator/features/transaction-type/repository/transaction_type_repository.dart';
 import 'package:expense_calculator/models/transaction_type_model.dart';
@@ -35,6 +37,7 @@ class TransactionTypeController
     extends StateNotifier<List<TransactionTypeModel>> {
   final TransactionTypeDataSource transactionTypeRepository;
   final Ref ref;
+  StreamSubscription<List<TransactionTypeModel>>? _subscription;
   TransactionTypeController({
     required this.transactionTypeRepository,
     required this.ref,
@@ -42,9 +45,17 @@ class TransactionTypeController
     _listenTransactionTypes();
   }
   void _listenTransactionTypes() {
-    transactionTypeRepository.getTransactionTypes().listen((types) {
+    _subscription = transactionTypeRepository.getTransactionTypes().listen((
+      types,
+    ) {
       state = types;
     });
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 
   Future<void> addTransactionType(TransactionTypeModel type) async {
