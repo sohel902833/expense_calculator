@@ -5,6 +5,7 @@ import 'package:expense_calculator/features/auth/screens/login_screen.dart';
 import 'package:expense_calculator/features/common/error_screen.dart';
 import 'package:expense_calculator/features/common/loading_screen.dart';
 import 'package:expense_calculator/features/dashboard/screens/dashboard_screen.dart';
+import 'package:expense_calculator/features/session_lock/widgets/session_lock_gate.dart';
 import 'package:expense_calculator/router/router.dart';
 import 'package:flutter/material.dart';
 //import flutter staff
@@ -26,8 +27,10 @@ class MainApp extends ConsumerWidget {
     final themeMode = ref.watch(themeProvider); // 👈 listen to theme mode
 
     return MaterialApp(
+      navigatorKey: rootNavigatorKey,
       debugShowCheckedModeBanner: false,
       title: "Expense Calculator",
+      builder: (context, child) => SessionLockGate(child: child!),
       theme: ThemeData.light().copyWith(
         scaffoldBackgroundColor: Colors.white,
         appBarTheme: const AppBarTheme(backgroundColor: Colors.blue),

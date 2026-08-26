@@ -22,8 +22,8 @@ class TransactionController extends StateNotifier<List<TransactionModel>> {
     });
   }
 
-  Future<void> addTransaction(TransactionModel transaction) async {
-    await repository.addTransaction(transaction);
+  Future<String> addTransaction(TransactionModel transaction) async {
+    return repository.addTransaction(transaction);
   }
 
   Future<void> updateTransaction(TransactionModel transaction) async {

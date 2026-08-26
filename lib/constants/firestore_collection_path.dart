@@ -9,6 +9,8 @@ class FireSotreCollection {
   static String get TRANSACTION_TYPE => _scoped("transaction_types");
   static String get TRANSACTIONS => _scoped("transactions");
   static String get BUDGETS => _scoped("budgets");
+  static String get RECURRING_RULES => _scoped("recurring_rules");
+  static String get RECURRING_OCCURRENCES => _scoped("recurring_occurrences");
 
   /// Every mode -- including PROD -- gets its own namespaced collection,
   /// so switching [AppMode.current] always lands on a clean dataset.

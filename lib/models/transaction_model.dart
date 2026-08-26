@@ -9,6 +9,7 @@ class TransactionModel {
   String? userId;
   final String? spentFromIncomeId;
   final bool isDeleted;
+  final String? recurringRuleId; // set when created from a recurring rule
   // timestamp
 
   TransactionModel({
@@ -22,6 +23,7 @@ class TransactionModel {
     this.userId,
     this.spentFromIncomeId,
     this.isDeleted = false,
+    this.recurringRuleId,
   });
 
   Map<String, dynamic> toMap() => {
@@ -34,6 +36,7 @@ class TransactionModel {
     'userId': userId,
     'spentFromIncomeId': spentFromIncomeId,
     'isDeleted': isDeleted,
+    'recurringRuleId': recurringRuleId,
   };
 
   factory TransactionModel.fromMap(String id, Map<String, dynamic> map) =>
@@ -50,5 +53,6 @@ class TransactionModel {
             : DateTime.now(),
         spentFromIncomeId: map['spentFromIncomeId'],
         isDeleted: map['isDeleted'] ?? false,
+        recurringRuleId: map['recurringRuleId'],
       );
 }

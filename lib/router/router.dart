@@ -5,8 +5,17 @@ import 'package:expense_calculator/features/comparison/screens/comparison_screen
 import 'package:expense_calculator/features/common/not_found_screen.dart';
 import 'package:expense_calculator/features/dashboard/screens/dashboard_screen.dart';
 import 'package:expense_calculator/features/dashboard/screens/settings_screen.dart';
+import 'package:expense_calculator/features/recurring/screens/recurring_rule_list_screen.dart';
+import 'package:expense_calculator/features/recurring/screens/recurring_transactions_screen.dart';
+import 'package:expense_calculator/features/session_lock/screens/biometric_settings_screen.dart';
 import 'package:expense_calculator/features/transaction-type/screens/transaction_type_screen.dart';
 import 'package:flutter/material.dart';
+
+/// The app's single Navigator, keyed so widgets that live outside the
+/// Navigator's own subtree (namely the session-lock overlay, injected via
+/// MaterialApp.builder as a sibling of the Navigator rather than a route
+/// inside it) can still navigate.
+final rootNavigatorKey = GlobalKey<NavigatorState>();
 
 Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name) {
@@ -42,6 +51,24 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       {
         return MaterialPageRoute(
           builder: (context) => const BudgetListScreen(),
+        );
+      }
+    case RecurringTransactionsScreen.routeName:
+      {
+        return MaterialPageRoute(
+          builder: (context) => const RecurringTransactionsScreen(),
+        );
+      }
+    case RecurringRuleListScreen.routeName:
+      {
+        return MaterialPageRoute(
+          builder: (context) => const RecurringRuleListScreen(),
+        );
+      }
+    case BiometricSettingsScreen.routeName:
+      {
+        return MaterialPageRoute(
+          builder: (context) => const BiometricSettingsScreen(),
         );
       }
     default:

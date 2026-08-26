@@ -2,6 +2,8 @@ import 'package:expense_calculator/common/providers/theme_provider.dart';
 import 'package:expense_calculator/features/auth/controller/auth_controller.dart';
 import 'package:expense_calculator/features/auth/screens/login_screen.dart';
 import 'package:expense_calculator/features/budget/screens/budget_list_screen.dart';
+import 'package:expense_calculator/features/session_lock/controller/session_lock_controller.dart';
+import 'package:expense_calculator/features/session_lock/screens/biometric_settings_screen.dart';
 import 'package:expense_calculator/features/transaction-type/screens/transaction_type_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,6 +37,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
             onPressed: () async {
               await ref.read(authControllerProvider).logout();
+              ref.read(sessionLockControllerProvider).resetOnLogout();
               if (context.mounted) {
                 Navigator.of(context).pop();
                 Navigator.pushReplacementNamed(context, LoginScreen.routeName);
@@ -103,6 +106,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () =>
                 Navigator.pushNamed(context, BudgetListScreen.routeName),
+          ),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 4),
+            child: Text(
+              "Security",
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.fingerprint_rounded),
+            title: const Text("Biometric Lock"),
+            subtitle: const Text("Unlock the app with your fingerprint"),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => Navigator.pushNamed(
+              context,
+              BiometricSettingsScreen.routeName,
+            ),
           ),
           const Divider(height: 24),
           ListTile(

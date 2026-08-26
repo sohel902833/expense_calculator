@@ -5,6 +5,7 @@ import 'package:expense_calculator/features/auth/controller/auth_controller.dart
 import 'package:expense_calculator/features/auth/screens/signup_screen.dart';
 import 'package:expense_calculator/features/auth/widgets/auth_widgets.dart';
 import 'package:expense_calculator/features/dashboard/screens/dashboard_screen.dart';
+import 'package:expense_calculator/features/session_lock/controller/session_lock_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -45,6 +46,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         },
         onSuccess: () {
           setState(() => _isLoading = false);
+          // Otherwise a user logging in after being logged out for longer
+          // than the session timeout would be immediately re-challenged by
+          // their own fresh login.
+          ref.read(sessionLockControllerProvider).markActiveNow();
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text("Login successful!")));

@@ -17,13 +17,16 @@ class TransactionRepository {
   final FirebaseAuth auth;
   TransactionRepository({required this.firestore, required this.auth});
 
-  Future<void> addTransaction(TransactionModel transaction) async {
+  Future<String> addTransaction(TransactionModel transaction) async {
     String userId = "";
     if (auth.currentUser != null) {
       userId = auth.currentUser!.uid;
     }
     transaction.userId = userId;
-    await firestore.collection(collectionName).add(transaction.toMap());
+    final doc = await firestore
+        .collection(collectionName)
+        .add(transaction.toMap());
+    return doc.id;
   }
 
   Future<void> updateTransaction(TransactionModel transaction) async {

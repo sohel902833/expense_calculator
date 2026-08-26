@@ -520,6 +520,17 @@ class _TransactionScreenState extends ConsumerState<TransactionScreen> {
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),
+              if (t.recurringRuleId != null) ...[
+                const SizedBox(width: 6),
+                Tooltip(
+                  message: "Created from a recurring rule",
+                  child: Icon(
+                    Icons.repeat_rounded,
+                    size: 14,
+                    color: Colors.grey.withValues(alpha: 0.8),
+                  ),
+                ),
+              ],
               if (t.isDeleted) ...[
                 const SizedBox(width: 6),
                 Container(

@@ -7,6 +7,8 @@ import 'package:expense_calculator/features/comparison/screens/comparison_screen
 import 'package:expense_calculator/features/dashboard/screens/home_screen.dart';
 import 'package:expense_calculator/features/dashboard/screens/settings_screen.dart';
 import 'package:expense_calculator/features/dashboard/screens/transaction_screen.dart';
+import 'package:expense_calculator/features/recurring/controller/recurring_occurrence_controller.dart';
+import 'package:expense_calculator/features/recurring/screens/recurring_transactions_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -29,7 +31,7 @@ double glassNavFabBottomOffset(BuildContext context) =>
 /// callback threaded down from DashboardScreen.
 final dashboardTabIndexProvider = StateProvider<int>((ref) => 0);
 
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   static const routeName = '/dashboard-screen';
   const DashboardScreen({super.key});
 
@@ -43,14 +45,34 @@ class DashboardScreen extends ConsumerWidget {
   ];
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  // Only auto-navigate to the recurring review screen once per app session,
+  // so returning to the dashboard afterwards doesn't keep yanking the user
+  // back before they've had a chance to act.
+  bool _hasCheckedRecurring = false;
+
+  @override
+  Widget build(BuildContext context) {
     final fabBottom = glassNavFabBottomOffset(context);
     final currentIndex = ref.watch(dashboardTabIndexProvider);
+
+    ref.listen<int>(pendingTodayCountProvider, (previous, next) {
+      if (_hasCheckedRecurring || next == 0) return;
+      _hasCheckedRecurring = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Navigator.pushNamed(context, RecurringTransactionsScreen.routeName);
+        }
+      });
+    });
 
     return Scaffold(
       extendBody: true,
       appBar: AppBar(
-        title: Text(_tabTitles[currentIndex]),
+        title: Text(DashboardScreen._tabTitles[currentIndex]),
         actions: [
           if (currentIndex == 0)
             IconButton(
@@ -80,7 +102,7 @@ class DashboardScreen extends ConsumerWidget {
       ),
       body: Stack(
         children: [
-          IndexedStack(index: currentIndex, children: _pages),
+          IndexedStack(index: currentIndex, children: DashboardScreen._pages),
           Positioned(
             right: 20,
             bottom: fabBottom,
@@ -170,6 +192,15 @@ class DashboardScreen extends ConsumerWidget {
                   label: "Budget",
                   selected: currentIndex == 2,
                   onTap: () => setIndex(2),
+                ),
+                _NavItem(
+                  icon: Icons.event_repeat_rounded,
+                  label: "Recurring",
+                  selected: false,
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    RecurringTransactionsScreen.routeName,
+                  ),
                 ),
                 _NavItem(
                   icon: Icons.compare_arrows_rounded,
