@@ -50,19 +50,19 @@ class CloudSyncRepository {
       );
       uid = credential.user!.uid;
     } on FirebaseAuthException catch (e) {
-      // The account may already exist from a previous attempt that failed
-      // partway through migration -- sign in and resume instead of
-      // hard-failing, since local rows already marked synced are safely
-      // skipped below.
+      // Deliberately never falls back to signing in here -- there is no
+      // reliable way to tell "this is my own sync retrying after a network
+      // drop" apart from "this email/password happens to match some other,
+      // unrelated account", and merging this device's offline data into
+      // the wrong account silently would be far worse than making the user
+      // pick a different email or log in first.
       if (e.code == 'email-already-in-use') {
-        final credential = await auth.signInWithEmailAndPassword(
-          email: email,
-          password: password,
+        throw Exception(
+          'An account with this email already exists. Use a different '
+          'email, or log in to that account first instead of syncing.',
         );
-        uid = credential.user!.uid;
-      } else {
-        rethrow;
       }
+      rethrow;
     }
 
     await _migrateUser(uid: uid, name: name, localUserId: localUserId);
