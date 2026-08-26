@@ -27,7 +27,7 @@ class MainApp extends ConsumerWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: "Whatsapp UI",
+      title: "Expense Calculator",
       theme: ThemeData.light().copyWith(
         scaffoldBackgroundColor: Colors.white,
         appBarTheme: const AppBarTheme(backgroundColor: Colors.blue),
