@@ -1,6 +1,6 @@
+import 'package:expense_calculator/features/offline_mode/controller/offline_mode_controller.dart';
 import 'package:expense_calculator/features/session_lock/repository/biometric_repository.dart';
 import 'package:expense_calculator/features/session_lock/repository/session_lock_repository.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,7 +18,10 @@ class _BiometricSettingsScreenState
   bool _loading = true;
   bool _enabled = false;
   bool _updating = false;
-  String get _uid => FirebaseAuth.instance.currentUser!.uid;
+  String get _uid => currentSessionUserId(
+    isOffline: ref.read(isOfflineModeProvider),
+    localUserId: ref.read(currentLocalUserIdProvider),
+  )!;
 
   @override
   void initState() {

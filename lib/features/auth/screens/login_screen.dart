@@ -2,9 +2,12 @@ import 'package:expense_calculator/common/repository/utils/utils.dart';
 import 'package:expense_calculator/constants/app_mode.dart';
 import 'package:expense_calculator/constants/color.dart';
 import 'package:expense_calculator/features/auth/controller/auth_controller.dart';
+import 'package:expense_calculator/features/auth/controller/local_auth_controller.dart';
 import 'package:expense_calculator/features/auth/screens/signup_screen.dart';
 import 'package:expense_calculator/features/auth/widgets/auth_widgets.dart';
 import 'package:expense_calculator/features/dashboard/screens/dashboard_screen.dart';
+import 'package:expense_calculator/features/offline_mode/controller/offline_mode_controller.dart';
+import 'package:expense_calculator/features/offline_mode/repository/offline_mode_repository.dart';
 import 'package:expense_calculator/features/session_lock/controller/session_lock_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,6 +26,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _obscureText = true;
   bool _isLoading = false;
+  bool _continueOffline = false;
+
+  @override
+  void initState() {
+    super.initState();
+    ref.read(offlineModeRepositoryProvider).isOfflineModePreferred().then((
+      preferred,
+    ) {
+      if (mounted) setState(() => _continueOffline = preferred);
+    });
+  }
 
   @override
   void dispose() {
@@ -31,36 +45,55 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
+  void _onSuccess() {
+    setState(() => _isLoading = false);
+    // Otherwise a user logging in after being logged out for longer than
+    // the session timeout would be immediately re-challenged by their own
+    // fresh login.
+    ref.read(sessionLockControllerProvider).markActiveNow();
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("Login successful!")));
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const DashboardScreen()),
+      (route) => false,
+    );
+  }
 
-      final authController = ref.read(authControllerProvider);
-      authController.loginWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
-        onError: (String? error) {
-          var message = error ?? "Something went wrong";
-          showSnackBar(context: context, content: message);
-          setState(() => _isLoading = false);
-        },
-        onSuccess: () {
-          setState(() => _isLoading = false);
-          // Otherwise a user logging in after being logged out for longer
-          // than the session timeout would be immediately re-challenged by
-          // their own fresh login.
-          ref.read(sessionLockControllerProvider).markActiveNow();
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text("Login successful!")));
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const DashboardScreen()),
-            (route) => false,
+  void _onError(String? error) {
+    var message = error ?? "Something went wrong";
+    showSnackBar(context: context, content: message);
+    setState(() => _isLoading = false);
+  }
+
+  void _submitForm() {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _isLoading = true);
+
+    if (_continueOffline) {
+      ref
+          .read(localAuthControllerProvider)
+          .loginWithEmailAndPassword(
+            email: _emailController.text,
+            password: _passwordController.text,
+            onError: _onError,
+            onSuccess: _onSuccess,
           );
-        },
-      );
+      return;
     }
+
+    ref
+        .read(authControllerProvider)
+        .loginWithEmailAndPassword(
+          email: _emailController.text,
+          password: _passwordController.text,
+          onError: _onError,
+          onSuccess: () {
+            ref.read(offlineModeControllerProvider).setOfflineMode(false);
+            _onSuccess();
+          },
+        );
   }
 
   void _onSignupTap() {
@@ -133,7 +166,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           return null;
                         },
                       ),
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 4),
+                      ContinueOfflineCheckbox(
+                        value: _continueOffline,
+                        onChanged: (value) =>
+                            setState(() => _continueOffline = value),
+                      ),
+                      const SizedBox(height: 12),
                       AuthPrimaryButton(
                         label: "Login",
                         isLoading: _isLoading,

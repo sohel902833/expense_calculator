@@ -1,4 +1,6 @@
+import 'package:expense_calculator/features/transaction-type/repository/transaction_type_data_source.dart';
 import 'package:expense_calculator/features/transaction-type/repository/transaction_type_repository.dart';
+import 'package:expense_calculator/features/transactions/repository/transaction_data_source.dart';
 import 'package:expense_calculator/features/transactions/repository/transaction_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:expense_calculator/models/transaction_model.dart';
@@ -13,8 +15,8 @@ final dashboardControllerProvider =
     });
 
 class DashboardController extends StateNotifier<DashboardData> {
-  final TransactionRepository txRepo;
-  final TransactionTypeRepository typeRepo;
+  final TransactionDataSource txRepo;
+  final TransactionTypeDataSource typeRepo;
 
   DashboardController(this.txRepo, this.typeRepo)
     : super(DashboardData.initial()) {

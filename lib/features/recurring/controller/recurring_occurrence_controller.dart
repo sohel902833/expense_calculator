@@ -1,4 +1,5 @@
 import 'package:expense_calculator/features/recurring/controller/recurring_rule_controller.dart';
+import 'package:expense_calculator/features/recurring/repository/recurring_occurrence_data_source.dart';
 import 'package:expense_calculator/features/recurring/repository/recurring_occurrence_repository.dart';
 import 'package:expense_calculator/features/recurring/repository/recurring_rule_repository.dart';
 import 'package:expense_calculator/features/recurring/utils/recurrence_engine.dart';
@@ -41,7 +42,7 @@ final upcomingOccurrencesProvider = Provider<List<PendingOccurrence>>((ref) {
 
 class RecurringOccurrenceController
     extends StateNotifier<List<RecurringOccurrenceModel>> {
-  final RecurringOccurrenceRepository repository;
+  final RecurringOccurrenceDataSource repository;
   final Ref ref;
   RecurringOccurrenceController({required this.repository, required this.ref})
     : super([]) {

@@ -1,3 +1,4 @@
+import 'package:expense_calculator/features/transactions/repository/transaction_data_source.dart';
 import 'package:expense_calculator/features/transactions/repository/transaction_repository.dart';
 import 'package:expense_calculator/models/transaction_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,7 +10,7 @@ final transactionControllerProvider =
     });
 
 class TransactionController extends StateNotifier<List<TransactionModel>> {
-  final TransactionRepository repository;
+  final TransactionDataSource repository;
   final Ref ref;
   TransactionController({required this.repository, required this.ref})
     : super([]) {

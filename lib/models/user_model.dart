@@ -4,12 +4,14 @@ class UserModel {
   final String profilePic;
   final bool isOnline;
   final String phoneNumber;
+  final String? email; // only ever populated for offline/local accounts
   UserModel({
     required this.name,
     required this.uid,
     required this.profilePic,
     required this.isOnline,
     required this.phoneNumber,
+    this.email,
   });
 
   Map<String, dynamic> toMap() {
@@ -19,6 +21,7 @@ class UserModel {
       'profilePic': profilePic,
       'isOnline': isOnline,
       'phoneNumber': phoneNumber,
+      'email': email,
     };
   }
 
@@ -29,6 +32,7 @@ class UserModel {
       profilePic: map['profilePic'] ?? '',
       isOnline: map['isOnline'] ?? false,
       phoneNumber: map['phoneNumber'] ?? '',
+      email: map['email'],
     );
   }
 }

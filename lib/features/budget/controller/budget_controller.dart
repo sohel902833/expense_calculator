@@ -1,3 +1,4 @@
+import 'package:expense_calculator/features/budget/repository/budget_data_source.dart';
 import 'package:expense_calculator/features/budget/repository/budget_repository.dart';
 import 'package:expense_calculator/models/budget_model.dart';
 import 'package:flutter/foundation.dart';
@@ -10,7 +11,7 @@ final budgetControllerProvider =
     });
 
 class BudgetController extends StateNotifier<List<BudgetModel>> {
-  final BudgetRepository repository;
+  final BudgetDataSource repository;
   final Ref ref;
   BudgetController({required this.repository, required this.ref}) : super([]) {
     _listenBudgets();

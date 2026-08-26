@@ -1,5 +1,5 @@
+import 'package:expense_calculator/features/offline_mode/controller/offline_mode_controller.dart';
 import 'package:expense_calculator/features/session_lock/repository/session_lock_repository.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Whether the app-lock overlay should currently be shown.
@@ -19,7 +19,11 @@ class SessionLockController {
 
   /// Only ever turns the lock *on* -- never call this to unlock.
   Future<void> checkAndLockIfNeeded() async {
-    if (FirebaseAuth.instance.currentUser == null) return;
+    final signedIn = currentSessionUserId(
+      isOffline: ref.read(isOfflineModeProvider),
+      localUserId: ref.read(currentLocalUserIdProvider),
+    );
+    if (signedIn == null) return;
     if (await repository.isTimedOut()) {
       ref.read(sessionLockedProvider.notifier).state = true;
     }

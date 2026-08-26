@@ -5,6 +5,8 @@ import 'package:expense_calculator/features/auth/screens/login_screen.dart';
 import 'package:expense_calculator/features/common/error_screen.dart';
 import 'package:expense_calculator/features/common/loading_screen.dart';
 import 'package:expense_calculator/features/dashboard/screens/dashboard_screen.dart';
+import 'package:expense_calculator/features/offline_mode/controller/offline_mode_controller.dart';
+import 'package:expense_calculator/features/offline_mode/repository/offline_mode_repository.dart';
 import 'package:expense_calculator/features/session_lock/widgets/session_lock_gate.dart';
 import 'package:expense_calculator/router/router.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +18,23 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const ProviderScope(child: MainApp()));
+
+  // Seeded synchronously before runApp so the Login/Dashboard routing
+  // decision never has to juggle an extra loading state for this.
+  final offlineModeRepository = OfflineModeRepository();
+  final isOfflineModePreferred = await offlineModeRepository
+      .isOfflineModePreferred();
+  final currentLocalUserId = await offlineModeRepository.currentLocalUserId();
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        isOfflineModeProvider.overrideWith((ref) => isOfflineModePreferred),
+        currentLocalUserIdProvider.overrideWith((ref) => currentLocalUserId),
+      ],
+      child: const MainApp(),
+    ),
+  );
 }
 
 class MainApp extends ConsumerWidget {
@@ -78,7 +96,7 @@ class MainApp extends ConsumerWidget {
       themeMode: themeMode,
       onGenerateRoute: (settings) => generateRoute(settings),
       home: ref
-          .watch(userDataAuthProvider)
+          .watch(sessionProvider)
           .when(
             data: (user) {
               if (user == null) {

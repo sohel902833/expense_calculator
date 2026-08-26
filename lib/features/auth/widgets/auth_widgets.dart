@@ -139,6 +139,56 @@ class AuthTextField extends StatelessWidget {
   }
 }
 
+/// "Continue Offline" opt-in shown on both Login and Signup -- checking it
+/// routes the form through the local (Drift-backed) auth path instead of
+/// Firebase, and the choice is remembered for next time.
+class ContinueOfflineCheckbox extends StatelessWidget {
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const ContinueOfflineCheckbox({
+    super.key,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => onChanged(!value),
+      borderRadius: BorderRadius.circular(12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Checkbox(
+            value: value,
+            onChanged: (v) => onChanged(v ?? false),
+            activeColor: tabColor,
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Continue Offline",
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                    "No account needed — everything stays on this device.",
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class AuthPrimaryButton extends StatelessWidget {
   final String label;
   final bool isLoading;

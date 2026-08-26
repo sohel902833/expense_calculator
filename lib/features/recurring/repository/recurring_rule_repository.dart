@@ -1,22 +1,31 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expense_calculator/constants/firestore_collection_path.dart';
+import 'package:expense_calculator/features/offline_mode/controller/offline_mode_controller.dart';
+import 'package:expense_calculator/features/recurring/repository/recurring_rule_data_source.dart';
+import 'package:expense_calculator/features/recurring/repository/recurring_rule_local_repository.dart';
 import 'package:expense_calculator/models/recurring_rule_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final recurringRuleRepositoryProvider = Provider((ref) {
+final recurringRuleRepositoryProvider = Provider<RecurringRuleDataSource>((
+  ref,
+) {
+  if (ref.watch(isOfflineModeProvider)) {
+    return ref.watch(recurringRuleLocalRepositoryProvider);
+  }
   return RecurringRuleRepository(
     firestore: FirebaseFirestore.instance,
     auth: FirebaseAuth.instance,
   );
 });
 
-class RecurringRuleRepository {
+class RecurringRuleRepository implements RecurringRuleDataSource {
   final FirebaseFirestore firestore;
   final collectionName = FireSotreCollection.RECURRING_RULES;
   final FirebaseAuth auth;
   RecurringRuleRepository({required this.firestore, required this.auth});
 
+  @override
   Future<void> addRule(RecurringRuleModel rule) async {
     String userId = "";
     if (auth.currentUser != null) {
@@ -26,6 +35,7 @@ class RecurringRuleRepository {
     await firestore.collection(collectionName).add(rule.toMap());
   }
 
+  @override
   Future<void> updateRule(RecurringRuleModel rule) async {
     // Ownership is set once on create and must never change on edit -- drop
     // it from the update payload, same as BudgetRepository.updateBudget.
@@ -33,12 +43,14 @@ class RecurringRuleRepository {
     await firestore.collection(collectionName).doc(rule.id).update(data);
   }
 
+  @override
   Future<void> deleteRule(String id) async {
     await firestore.collection(collectionName).doc(id).delete();
   }
 
   /// Sorted client-side so this only needs the automatic single-field index
   /// on `userId`, same rationale as BudgetRepository.getUserBudgets.
+  @override
   Stream<List<RecurringRuleModel>> getUserRules() {
     final uid = auth.currentUser!.uid;
     return firestore

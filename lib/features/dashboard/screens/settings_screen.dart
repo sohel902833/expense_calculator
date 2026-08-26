@@ -2,6 +2,8 @@ import 'package:expense_calculator/common/providers/theme_provider.dart';
 import 'package:expense_calculator/features/auth/controller/auth_controller.dart';
 import 'package:expense_calculator/features/auth/screens/login_screen.dart';
 import 'package:expense_calculator/features/budget/screens/budget_list_screen.dart';
+import 'package:expense_calculator/features/offline_mode/controller/offline_mode_controller.dart';
+import 'package:expense_calculator/features/offline_mode/screens/sync_to_cloud_sheet.dart';
 import 'package:expense_calculator/features/session_lock/controller/session_lock_controller.dart';
 import 'package:expense_calculator/features/session_lock/screens/biometric_settings_screen.dart';
 import 'package:expense_calculator/features/transaction-type/screens/transaction_type_screen.dart';
@@ -36,7 +38,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               backgroundColor: const Color(0xFFE74C3C),
             ),
             onPressed: () async {
-              await ref.read(authControllerProvider).logout();
+              if (ref.read(isOfflineModeProvider)) {
+                await ref
+                    .read(offlineModeControllerProvider)
+                    .setCurrentLocalUser(null);
+              } else {
+                await ref.read(authControllerProvider).logout();
+              }
               ref.read(sessionLockControllerProvider).resetOnLogout();
               if (context.mounted) {
                 Navigator.of(context).pop();
@@ -53,6 +61,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final themeMode = ref.watch(themeProvider);
+    final isOffline = ref.watch(isOfflineModeProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text("Settings")),
@@ -107,6 +116,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             onTap: () =>
                 Navigator.pushNamed(context, BudgetListScreen.routeName),
           ),
+          if (isOffline)
+            ListTile(
+              leading: const Icon(Icons.cloud_upload_outlined),
+              title: const Text("Sync to Cloud"),
+              subtitle: const Text(
+                "Create an account and back up everything you've built up",
+              ),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => showSyncToCloudSheet(context, ref),
+            ),
           const Padding(
             padding: EdgeInsets.fromLTRB(16, 16, 16, 4),
             child: Text(

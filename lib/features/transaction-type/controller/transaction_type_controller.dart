@@ -1,3 +1,4 @@
+import 'package:expense_calculator/features/transaction-type/repository/transaction_type_data_source.dart';
 import 'package:expense_calculator/features/transaction-type/repository/transaction_type_repository.dart';
 import 'package:expense_calculator/models/transaction_type_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,7 +33,7 @@ final transactionTypesStreamProvider =
 
 class TransactionTypeController
     extends StateNotifier<List<TransactionTypeModel>> {
-  final TransactionTypeRepository transactionTypeRepository;
+  final TransactionTypeDataSource transactionTypeRepository;
   final Ref ref;
   TransactionTypeController({
     required this.transactionTypeRepository,

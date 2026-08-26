@@ -1,3 +1,4 @@
+import 'package:expense_calculator/features/recurring/repository/recurring_rule_data_source.dart';
 import 'package:expense_calculator/features/recurring/repository/recurring_rule_repository.dart';
 import 'package:expense_calculator/models/recurring_rule_model.dart';
 import 'package:flutter/foundation.dart';
@@ -12,7 +13,7 @@ final recurringRuleControllerProvider =
     });
 
 class RecurringRuleController extends StateNotifier<List<RecurringRuleModel>> {
-  final RecurringRuleRepository repository;
+  final RecurringRuleDataSource repository;
   final Ref ref;
   RecurringRuleController({required this.repository, required this.ref})
     : super([]) {

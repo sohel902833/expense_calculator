@@ -2,7 +2,9 @@ import 'dart:ui';
 
 import 'package:expense_calculator/constants/color.dart';
 import 'package:expense_calculator/features/auth/controller/auth_controller.dart';
+import 'package:expense_calculator/features/auth/repository/local_auth_repository.dart';
 import 'package:expense_calculator/features/auth/screens/login_screen.dart';
+import 'package:expense_calculator/features/offline_mode/controller/offline_mode_controller.dart';
 import 'package:expense_calculator/features/session_lock/controller/session_lock_controller.dart';
 import 'package:expense_calculator/features/session_lock/repository/biometric_repository.dart';
 import 'package:expense_calculator/features/session_lock/repository/session_lock_repository.dart';
@@ -48,7 +50,10 @@ class _SessionLockOverlayState extends ConsumerState<SessionLockOverlay> {
   }
 
   Future<void> _loadBiometricPreference() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final uid = currentSessionUserId(
+      isOffline: ref.read(isOfflineModeProvider),
+      localUserId: ref.read(currentLocalUserIdProvider),
+    );
     if (uid == null) return;
     final enabled = await ref
         .read(sessionLockRepositoryProvider)
@@ -86,6 +91,32 @@ class _SessionLockOverlayState extends ConsumerState<SessionLockOverlay> {
       setState(() => _error = "Enter your password");
       return;
     }
+
+    if (ref.read(isOfflineModeProvider)) {
+      final localUserId = ref.read(currentLocalUserIdProvider);
+      if (localUserId == null) {
+        setState(() => _error = "No active session found");
+        return;
+      }
+      setState(() {
+        _submitting = true;
+        _error = null;
+      });
+      final ok = await ref
+          .read(localAuthRepositoryProvider)
+          .verifyPassword(localUserId, password);
+      if (!mounted) return;
+      if (ok) {
+        await ref.read(sessionLockControllerProvider).unlock();
+      } else {
+        setState(() {
+          _submitting = false;
+          _error = "Incorrect password";
+        });
+      }
+      return;
+    }
+
     final user = FirebaseAuth.instance.currentUser;
     if (user == null || user.email == null) {
       setState(() => _error = "No active session found");
@@ -111,7 +142,11 @@ class _SessionLockOverlayState extends ConsumerState<SessionLockOverlay> {
 
   Future<void> _logout() async {
     setState(() => _submitting = true);
-    await ref.read(authControllerProvider).logout();
+    if (ref.read(isOfflineModeProvider)) {
+      await ref.read(offlineModeControllerProvider).setCurrentLocalUser(null);
+    } else {
+      await ref.read(authControllerProvider).logout();
+    }
     ref.read(sessionLockControllerProvider).resetOnLogout();
     rootNavigatorKey.currentState?.pushNamedAndRemoveUntil(
       LoginScreen.routeName,
