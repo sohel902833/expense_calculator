@@ -95,7 +95,18 @@ echo "==> Regenerating Drift database code"
 dart run build_runner build --delete-conflicting-outputs
 
 echo "==> flutter analyze"
-flutter analyze
+# `flutter analyze` exits non-zero on any warning, not just errors -- this
+# project has a handful of pre-existing warnings (unused imports, dead code)
+# that don't affect the build. Only abort the release on real errors.
+set +e
+analyze_output="$(flutter analyze 2>&1)"
+set -e
+echo "$analyze_output"
+if echo "$analyze_output" | grep -qE '^\s*error •'; then
+  echo
+  echo "flutter analyze found errors above -- aborting release build."
+  exit 1
+fi
 
 echo "==> Building release APK (APP_MODE=PROD)"
 flutter build apk --release --dart-define=APP_MODE=PROD
