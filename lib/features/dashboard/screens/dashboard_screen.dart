@@ -4,6 +4,7 @@ import 'package:expense_calculator/common/modals/transaction_modals.dart';
 import 'package:expense_calculator/features/budget/screens/budget_dashboard_screen.dart';
 import 'package:expense_calculator/features/budget/screens/budget_list_screen.dart';
 import 'package:expense_calculator/features/comparison/screens/comparison_screen.dart';
+import 'package:expense_calculator/features/dashboard/screens/category_expenses_screen.dart';
 import 'package:expense_calculator/features/dashboard/screens/home_screen.dart';
 import 'package:expense_calculator/features/dashboard/screens/settings_screen.dart';
 import 'package:expense_calculator/features/dashboard/screens/transaction_screen.dart';
@@ -80,7 +81,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               onPressed: () => showDashboardMonthFilterSheet(context, ref),
               icon: const Icon(Icons.tune_rounded),
             ),
-          if (currentIndex == 1) _buildTransactionFilterAction(ref, context),
+          if (currentIndex == 1) ...[
+            IconButton(
+              tooltip: "Group by category",
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const CategoryExpensesScreen(),
+                ),
+              ),
+              icon: const Icon(Icons.pie_chart_outline_rounded),
+            ),
+            _buildTransactionFilterAction(ref, context),
+          ],
           if (currentIndex == 2)
             IconButton(
               tooltip: "Manage Budgets",

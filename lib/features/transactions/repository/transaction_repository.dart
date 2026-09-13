@@ -6,13 +6,16 @@ import 'package:expense_calculator/features/transactions/repository/transaction_
 import 'package:expense_calculator/features/transactions/repository/transaction_local_repository.dart';
 import 'package:expense_calculator/models/transaction_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final transactionRepositoryProvider = Provider<TransactionDataSource>((ref) {
   ref.watch(currentIdentityProvider); // rebuild on account/profile switch
   if (ref.watch(isOfflineModeProvider)) {
+    debugPrint("Using local transaction repository");
     return ref.watch(transactionLocalRepositoryProvider);
   }
+  debugPrint("Using remote transaction repository");
   return TransactionRepository(
     firestore: FirebaseFirestore.instance,
     auth: FirebaseAuth.instance,
@@ -77,6 +80,7 @@ class TransactionRepository implements TransactionDataSource {
   @override
   Stream<List<TransactionModel>> getUserTransactions() {
     final uid = auth.currentUser!.uid;
+    debugPrint("Fetching transactions for user: $uid");
     return firestore
         .collection(collectionName)
         .where('userId', isEqualTo: uid)

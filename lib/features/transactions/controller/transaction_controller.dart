@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:expense_calculator/features/transactions/repository/transaction_data_source.dart';
 import 'package:expense_calculator/features/transactions/repository/transaction_repository.dart';
 import 'package:expense_calculator/models/transaction_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final transactionControllerProvider =
@@ -21,9 +22,12 @@ class TransactionController extends StateNotifier<List<TransactionModel>> {
   }
 
   void _listenTransactions() {
-    _subscription = repository.getUserTransactions().listen((transactions) {
-      state = transactions;
-    });
+    _subscription = repository.getUserTransactions().listen(
+      (transactions) => state = transactions,
+      onError: (Object error) {
+        debugPrint('Transaction stream error: $error');
+      },
+    );
   }
 
   @override

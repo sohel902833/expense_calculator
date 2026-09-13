@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:expense_calculator/features/transaction-type/repository/transaction_type_data_source.dart';
 import 'package:expense_calculator/features/transaction-type/repository/transaction_type_repository.dart';
 import 'package:expense_calculator/models/transaction_type_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // final transactionTypeControllerProvider = Provider((ref) {
@@ -45,11 +46,12 @@ class TransactionTypeController
     _listenTransactionTypes();
   }
   void _listenTransactionTypes() {
-    _subscription = transactionTypeRepository.getTransactionTypes().listen((
-      types,
-    ) {
-      state = types;
-    });
+    _subscription = transactionTypeRepository.getTransactionTypes().listen(
+      (types) => state = types,
+      onError: (Object error) {
+        debugPrint('Transaction type stream error: $error');
+      },
+    );
   }
 
   @override

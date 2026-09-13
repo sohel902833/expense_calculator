@@ -45,6 +45,7 @@ final currentIdentityProvider = Provider<String?>((ref) {
 /// LoginScreen nor DashboardScreen needs to know which backend is active.
 final sessionProvider = FutureProvider<UserModel?>((ref) async {
   final isOffline = ref.watch(isOfflineModeProvider);
+  debugPrint('isOffline: $isOffline');
   if (isOffline) {
     final localUserId = ref.watch(currentLocalUserIdProvider);
     if (localUserId == null) return null;

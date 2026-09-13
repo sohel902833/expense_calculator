@@ -1,4 +1,5 @@
 import 'package:expense_calculator/common/providers/theme_provider.dart';
+import 'package:expense_calculator/constants/app_mode.dart';
 import 'package:expense_calculator/features/auth/controller/auth_controller.dart';
 import 'package:expense_calculator/features/auth/screens/login_screen.dart';
 import 'package:expense_calculator/features/budget/screens/budget_list_screen.dart';
@@ -19,6 +20,35 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  Widget _buildBadge({
+    required String label,
+    required Color color,
+    required IconData icon,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: color),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -58,6 +88,98 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
+  Widget _buildProfileHeader(BuildContext context) {
+    final isOffline = ref.watch(isOfflineModeProvider);
+    final user = ref.watch(sessionProvider).valueOrNull;
+    // The Firestore user doc only ever stores email for offline/local
+    // accounts (see UserModel) -- online accounts' email lives on the
+    // Firebase Auth user itself.
+    final email = isOffline
+        ? user?.email
+        : ref.watch(firebaseAuthStateProvider).valueOrNull?.email;
+    final name = (user?.name.isNotEmpty ?? false) ? user!.name : "User";
+    final hasPhoto = user?.profilePic.isNotEmpty ?? false;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.04)
+            : Colors.black.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 28,
+            backgroundImage: hasPhoto ? NetworkImage(user!.profilePic) : null,
+            child: hasPhoto
+                ? null
+                : Text(
+                    name[0].toUpperCase(),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (email != null && email.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    email,
+                    style: const TextStyle(fontSize: 13, color: Colors.grey),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    if (!AppMode.isProd)
+                      _buildBadge(
+                        label: "${AppMode.current} MODE",
+                        color: Colors.orange.shade700,
+                        icon: Icons.build_rounded,
+                      ),
+                    isOffline
+                        ? _buildBadge(
+                            label: "Offline",
+                            color: Colors.grey.shade600,
+                            icon: Icons.cloud_off_rounded,
+                          )
+                        : _buildBadge(
+                            label: "Online",
+                            color: Colors.green.shade600,
+                            icon: Icons.cloud_done_rounded,
+                          ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeMode = ref.watch(themeProvider);
@@ -68,6 +190,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(0, 8, 0, 110),
         children: [
+          _buildProfileHeader(context),
           const Padding(
             padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
             child: Text(

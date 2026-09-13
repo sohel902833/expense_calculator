@@ -11,10 +11,8 @@ class AppMode {
   static const dev = "DEV";
   static const prod = "PROD";
 
-  static const current = String.fromEnvironment(
-    'APP_MODE',
-    defaultValue: dev,
-  );
+  // static const current = String.fromEnvironment('APP_MODE', defaultValue: dev);
+  static const current = prod;
 
   static bool get isProd => current == prod;
 }

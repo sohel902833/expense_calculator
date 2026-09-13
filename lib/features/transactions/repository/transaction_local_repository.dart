@@ -3,6 +3,7 @@ import 'package:expense_calculator/features/offline_mode/controller/offline_mode
 import 'package:expense_calculator/features/transactions/repository/transaction_data_source.dart';
 import 'package:expense_calculator/local_db/app_local_database.dart';
 import 'package:expense_calculator/models/transaction_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -100,6 +101,7 @@ class TransactionLocalRepository implements TransactionDataSource {
   @override
   Stream<List<TransactionModel>> getUserTransactions() {
     final uid = ref.read(currentLocalUserIdProvider) ?? '';
+    debugPrint('Current local user id: $uid');
     return (db.select(db.localTransactions)
           ..where((t) => t.userId.equals(uid))
           ..orderBy([

@@ -99,6 +99,7 @@ class MainApp extends ConsumerWidget {
           .watch(sessionProvider)
           .when(
             data: (user) {
+              debugPrint('Current user: ${user?.uid} ${user?.email}');
               if (user == null) {
                 return const LoginScreen();
               }

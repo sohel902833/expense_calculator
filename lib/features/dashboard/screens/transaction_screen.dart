@@ -1,5 +1,6 @@
 import 'package:expense_calculator/common/modals/transaction_modals.dart';
 import 'package:expense_calculator/constants/currency.dart';
+import 'package:expense_calculator/features/dashboard/screens/category_expenses_screen.dart';
 import 'package:expense_calculator/features/transaction-type/controller/transaction_type_controller.dart';
 import 'package:expense_calculator/features/transactions/controller/transaction_controller.dart';
 import 'package:expense_calculator/models/transaction_model.dart';
@@ -8,8 +9,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const _monthNames = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
 ];
 
 String _formatDate(DateTime d) =>
@@ -322,11 +333,7 @@ class _TransactionScreenState extends ConsumerState<TransactionScreen> {
           Row(
             children: [
               Expanded(
-                child: _summaryItem(
-                  "Income",
-                  income,
-                  const Color(0xFF2ECC71),
-                ),
+                child: _summaryItem("Income", income, const Color(0xFF2ECC71)),
               ),
               Container(width: 1, height: 30, color: dividerColor),
               Expanded(
@@ -472,9 +479,9 @@ class _TransactionScreenState extends ConsumerState<TransactionScreen> {
           if (filtersActive) ...[
             const SizedBox(height: 16),
             TextButton(
-              onPressed: () => ref
-                  .read(transactionFilterProvider.notifier)
-                  .state = TransactionFilterState(),
+              onPressed: () =>
+                  ref.read(transactionFilterProvider.notifier).state =
+                      TransactionFilterState(),
               child: const Text("Clear filters"),
             ),
           ],
@@ -501,6 +508,13 @@ class _TransactionScreenState extends ConsumerState<TransactionScreen> {
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 14,
             vertical: 4,
+          ),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) =>
+                  CategoryExpensesScreen(initialCategoryId: t.categoryId),
+            ),
           ),
           leading: CircleAvatar(
             backgroundColor: color.withValues(alpha: 0.15),
@@ -648,9 +662,7 @@ class _TransactionScreenState extends ConsumerState<TransactionScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         title: const Text("Delete Transaction"),
         content: const Text(
           "This transaction will be moved to deleted items. You can restore it later.",
@@ -711,8 +723,9 @@ void showTransactionFilterSheet(BuildContext context, WidgetRef ref) {
         final isDark = theme.brightness == Brightness.dark;
         final bottomInset = MediaQuery.of(context).viewInsets.bottom;
         final bottomSafeArea = MediaQuery.of(context).padding.bottom;
-        final borderColor = (isDark ? Colors.white : Colors.black)
-            .withValues(alpha: 0.2);
+        final borderColor = (isDark ? Colors.white : Colors.black).withValues(
+          alpha: 0.2,
+        );
 
         final categories = tempType == "All"
             ? types
@@ -794,8 +807,7 @@ void showTransactionFilterSheet(BuildContext context, WidgetRef ref) {
                           label: "Income",
                           selected: tempType == "Income",
                           color: const Color(0xFF2ECC71),
-                          onTap: () =>
-                              setModalState(() => tempType = "Income"),
+                          onTap: () => setModalState(() => tempType = "Income"),
                         ),
                         const SizedBox(width: 4),
                         _SegmentOption(
@@ -853,9 +865,7 @@ void showTransactionFilterSheet(BuildContext context, WidgetRef ref) {
                           selected: tempPeriod.tab == "Date",
                           color: const Color(0xFF37474F),
                           onTap: () => setModalState(
-                            () => tempPeriod = tempPeriod.copyWith(
-                              tab: "Date",
-                            ),
+                            () => tempPeriod = tempPeriod.copyWith(tab: "Date"),
                           ),
                         ),
                         const SizedBox(width: 4),
@@ -864,9 +874,8 @@ void showTransactionFilterSheet(BuildContext context, WidgetRef ref) {
                           selected: tempPeriod.tab == "Month",
                           color: const Color(0xFF37474F),
                           onTap: () => setModalState(
-                            () => tempPeriod = tempPeriod.copyWith(
-                              tab: "Month",
-                            ),
+                            () =>
+                                tempPeriod = tempPeriod.copyWith(tab: "Month"),
                           ),
                         ),
                         const SizedBox(width: 4),
@@ -875,9 +884,7 @@ void showTransactionFilterSheet(BuildContext context, WidgetRef ref) {
                           selected: tempPeriod.tab == "Year",
                           color: const Color(0xFF37474F),
                           onTap: () => setModalState(
-                            () => tempPeriod = tempPeriod.copyWith(
-                              tab: "Year",
-                            ),
+                            () => tempPeriod = tempPeriod.copyWith(tab: "Year"),
                           ),
                         ),
                         const SizedBox(width: 4),
@@ -886,9 +893,8 @@ void showTransactionFilterSheet(BuildContext context, WidgetRef ref) {
                           selected: tempPeriod.tab == "Range",
                           color: const Color(0xFF37474F),
                           onTap: () => setModalState(
-                            () => tempPeriod = tempPeriod.copyWith(
-                              tab: "Range",
-                            ),
+                            () =>
+                                tempPeriod = tempPeriod.copyWith(tab: "Range"),
                           ),
                         ),
                       ],
@@ -1065,16 +1071,13 @@ void showTransactionFilterSheet(BuildContext context, WidgetRef ref) {
                         decoration: const InputDecoration(labelText: "Year"),
                         items: years
                             .map(
-                              (y) => DropdownMenuItem(
-                                value: y,
-                                child: Text("$y"),
-                              ),
+                              (y) =>
+                                  DropdownMenuItem(value: y, child: Text("$y")),
                             )
                             .toList(),
                         onChanged: (val) => setModalState(
-                          () => tempPeriod = tempPeriod.copyWith(
-                            customYear: val,
-                          ),
+                          () =>
+                              tempPeriod = tempPeriod.copyWith(customYear: val),
                         ),
                       ),
                     ],
@@ -1208,13 +1211,14 @@ void showTransactionFilterSheet(BuildContext context, WidgetRef ref) {
                               );
                               return;
                             }
-                            ref.read(transactionFilterProvider.notifier).state =
-                                TransactionFilterState(
-                                  typeFilter: tempType,
-                                  categoryId: tempCategoryId,
-                                  showDeleted: tempShowDeleted,
-                                  period: tempPeriod,
-                                );
+                            ref
+                                .read(transactionFilterProvider.notifier)
+                                .state = TransactionFilterState(
+                              typeFilter: tempType,
+                              categoryId: tempCategoryId,
+                              showDeleted: tempShowDeleted,
+                              period: tempPeriod,
+                            );
                             Navigator.pop(context);
                           },
                           style: ElevatedButton.styleFrom(
@@ -1313,9 +1317,7 @@ class _ChoicePill extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: selected
-              ? accent.withValues(alpha: 0.12)
-              : Colors.transparent,
+          color: selected ? accent.withValues(alpha: 0.12) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: selected
